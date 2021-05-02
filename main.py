@@ -1,26 +1,17 @@
+""" An implementation of Conway's game of life
+ using numpy and scipy"""
+
 import cv2
 import numpy as np
 import scipy.signal
-SIZE_X = 2000
-SIZE_Y = 2000
-SCALE = 1
 
-def check_y(i):
-    return 0 <= i < SIZE_Y
-
-def check_x(j):
-    return 0 <= j < SIZE_X
-
-directions = np.array([(1,0),
-                       (-1,0),
-                       (0,1),
-                       (0,-1),
-                       (1,-1),
-                       (-1,1),
-                       (1,1),
-                       (-1,-1)])
+SIZE_X = int(1000/2)
+SIZE_Y = int(1000/2)
+SCALE = 2
 
 area = 3
+FPS = 24
+video_length = 40*FPS
 def apply_logic(board):
     convolve = scipy.signal.convolve2d(board, np.ones((area,area)), "same")
     new_board = np.where(((board == 1) & ((convolve == 3) | (convolve == 4))) |
@@ -28,16 +19,39 @@ def apply_logic(board):
     return new_board#new_board
 
 
-def run():
-    board = np.round(np.random.random((SIZE_Y, SIZE_X)) * 0.55)
-    while True:
+def run(display=True, save_as=None):
+    board = np.round(np.random.random((SIZE_Y, SIZE_X)) * 0.9)
+
+    if save_as is not None:
+        saving = True
+        video = cv2.VideoWriter(save_as, cv2.VideoWriter_fourcc(*'mp4v'), FPS, (int(SIZE_X*SCALE), int(SIZE_Y*SCALE)))
+
+    else:
+        saving = False
+
+    for frame in range(video_length):
+        if (frame+1)%100 == 0:
+            print("frame",frame+1,"of",video_length)
+
         board = apply_logic(board)
+
         if SCALE > 1:
             show_board =np.kron(board, np.ones((SCALE, SCALE), dtype=board.dtype))
-            cv2.imshow("game of life", show_board)
+            if saving:
+                video.write(np.stack([show_board*255,show_board*255,show_board*255], axis=2).astype("uint8"))
+            if display:
+                cv2.imshow("game of life", show_board)
         else:
-            cv2.imshow("game of life", board)
-        cv2.waitKey(1)
+            if saving:
+                print(board.shape)
+                video.write(np.stack([board*255,board*255,board*255], axis=2).astype("uint8"))#)
+            if display:
+                cv2.imshow("game of life", board)
 
+        if display:
+            cv2.waitKey(1)
+
+    if saving:
+        video.release()
 if __name__ == "__main__":
-    run()
+    run(display=True, save_as="conway.mp4")
