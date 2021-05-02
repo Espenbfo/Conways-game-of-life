@@ -5,8 +5,8 @@ import cv2
 import numpy as np
 import scipy.signal
 
-SIZE_X = int(1000/2)
-SIZE_Y = int(1000/2)
+SIZE_X = int(4000/2)
+SIZE_Y = int(4000/2)
 SCALE = 2
 
 area = 3
@@ -54,4 +54,4 @@ def run(display=True, save_as=None):
     if saving:
         video.release()
 if __name__ == "__main__":
-    run(display=True, save_as="conway.mp4")
+    run(display=True)# , save_as="conway.mp4")
