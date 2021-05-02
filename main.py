@@ -5,8 +5,8 @@ import cv2
 import numpy as np
 import scipy.signal
 
-SIZE_X = int(4000/2)
-SIZE_Y = int(4000/2)
+SIZE_X = int(1000/2)
+SIZE_Y = int(1000/2)
 SCALE = 2
 
 area = 3
@@ -29,9 +29,12 @@ def run(display=True, save_as=None):
     else:
         saving = False
 
-    for frame in range(video_length):
-        if (frame+1)%100 == 0:
-            print("frame",frame+1,"of",video_length)
+    frame = 0
+    while True:
+
+        if saving:
+            if (frame+1)%100 == 0:
+                print("frame",frame+1,"of",video_length)
 
         board = apply_logic(board)
 
@@ -43,7 +46,6 @@ def run(display=True, save_as=None):
                 cv2.imshow("game of life", show_board)
         else:
             if saving:
-                print(board.shape)
                 video.write(np.stack([board*255,board*255,board*255], axis=2).astype("uint8"))#)
             if display:
                 cv2.imshow("game of life", board)
@@ -51,7 +53,13 @@ def run(display=True, save_as=None):
         if display:
             cv2.waitKey(1)
 
+        if saving:
+            frame += 1
+            if frame == video_length:
+                break
+
     if saving:
         video.release()
+
 if __name__ == "__main__":
     run(display=True)# , save_as="conway.mp4")
